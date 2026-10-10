@@ -14,6 +14,9 @@ Maintainers lose time reconstructing the same setup and documentation answers. I
 - Publishes a GitHub comment only after an authenticated person checks the preview and confirms the target repository and issue.
 - Includes a demo mode that uses fixtures and never calls GitHub to publish.
 
+
+![Sign in](docs/images/test-run.png)
+
 ## Limitations
 
 - Live DocsGPT and live GitHub calls were not exercised with real credentials in this environment. The clients follow the contracts checked on 2026-10-10, and tests use mocked HTTP.
