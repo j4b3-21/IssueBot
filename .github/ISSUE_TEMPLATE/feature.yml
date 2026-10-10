@@ -1,0 +1,15 @@
+name: Feature
+description: A change to IssueBot
+body:
+  - type: textarea
+    attributes:
+      label: Problem
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed behavior
+  - type: textarea
+    attributes:
+      label: Security impact
+      description: Say whether this touches webhooks, secrets, publishing, or outbound HTTP.

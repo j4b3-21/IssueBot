@@ -1,0 +1,15 @@
+name: Bug
+description: A defect in IssueBot
+body:
+  - type: textarea
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What you expected
+  - type: textarea
+    attributes:
+      label: Redacted logs
+      description: Remove tokens, webhook secrets, and private keys before pasting.
