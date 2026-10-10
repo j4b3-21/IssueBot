@@ -60,7 +60,6 @@ export function SettingsPage() {
       <h1 tabIndex={-1} className="mb-4 text-2xl font-semibold">
         Settings
       </h1>
-      {settings.demo_mode ? <PageNotice>Demo data. Nothing is published to GitHub.</PageNotice> : null}
       <p className="my-3">
         Webhook URL <code>{settings.webhook_url}</code>
       </p>
@@ -87,7 +86,7 @@ export function SettingsPage() {
         <label className="block" htmlFor="github_private_key">
           GitHub private key
           <textarea id="github_private_key" name="github_private_key" className="mt-1 w-full border border-line px-2 py-1" autoComplete="off" />
-          <span>{settings.github_private_key_configured ? "Configured" : "Not set"}. Leave blank to keep the saved key.</span>
+          <span>{settings.github_private_key_configured ? "Configured. Leave blank to keep the saved key." : "Not set."}</span>
         </label>
         <SecretField label="Webhook secret" name="github_webhook_secret" configured={settings.github_webhook_secret_configured} />
         <label className="block" htmlFor="allowed_repos">
@@ -190,7 +189,9 @@ export function SecretField({ label, name, configured }: { label: string; name: 
         {label}
         <input id={name} name={name} type="password" autoComplete="new-password" aria-describedby={`${name}-status`} className="mt-1 w-full border border-line px-2 py-1" />
       </label>
-      <p id={`${name}-status`}>{configured ? "Configured" : "Not set"}. Saved. The value is not shown again.</p>
+      <p id={`${name}-status`}>
+        {configured ? "Configured. The saved value is not shown. Leave blank to keep it." : "Not set."}
+      </p>
     </div>
   );
 }

@@ -49,12 +49,17 @@ export function DetailPage() {
       <p aria-live="polite" className="mb-3">
         <StatusBadge status={item.display_status} /> {notice}
       </p>
-      {item.mock || item.actions.demo_mode ? <PageNotice>Demo data. Nothing is published to GitHub.</PageNotice> : null}
       {item.error_message ? <PageNotice>{item.error_message}</PageNotice> : null}
       <p className="my-3">
-        <ExternalLink title="Open the GitHub issue" url={item.issue_url} />
+        {item.mock || item.actions.demo_mode ? (
+          <span>Demo fixture. There is no GitHub issue behind it.</span>
+        ) : (
+          <ExternalLink title="Open the GitHub issue" url={item.issue_url} />
+        )}
       </p>
-      <p className="brief mb-6">{item.issue_body}</p>
+      <h2 className="text-lg font-semibold">Reporter's text</h2>
+      <p className="mb-1 text-sm">Untrusted input. IssueBot told the agent not to follow instructions in it.</p>
+      <p className="brief mb-6 whitespace-pre-wrap">{item.issue_body}</p>
       {!report ? <p aria-busy="true">The investigation is still running.</p> : null}
       {report ? (
         <>

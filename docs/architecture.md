@@ -85,5 +85,6 @@ Integration failures use a fixed code. The client sees `safe_message(code)`, not
 - Postgres `FOR UPDATE SKIP LOCKED` claims the job. SQLite tests claim without that clause. One API process is the intended consumer.
 - Password hashing is stdlib scrypt. No Argon2 dependency.
 - CSRF is the custom header on cookie-authenticated mutations. The webhook path does not use that header.
-- The public comment is rendered from the structured report and HTML-escaped. `@` is followed by a zero-width space so GitHub is less likely to notify a mention.
+- The public comment is rendered from the structured report and HTML-escaped. `@` is followed by a zero-width space so GitHub is less likely to notify a mention. Its Sources section lists only DocsGPT sources: linkable ones as Markdown links with `@`, parentheses, and spaces percent-encoded, the rest as titles. It says the sources apply to the whole answer.
+- Alembic's `env.py` does not call `fileConfig`. That call replaced the redacting JSON log handler and disabled uvicorn's loggers on every startup.
 - Demo mode replaces DocsGPT and GitHub publish with fixtures and forces the publish switch off.

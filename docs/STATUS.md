@@ -4,51 +4,63 @@ Last updated 2026-10-10.
 
 ## Implemented
 
-- Webhook intake: HMAC-SHA256 over the raw body, unique delivery id, 1 MB limit, allowlist (empty denies), installation lifecycle events.
-- Durable jobs in the database, in-process worker, lease recovery, bounded automatic retries, manual retry limit.
-- DocsGPT client for `POST /api/answer` with `api_key` in the body. No redirects. Paused tool calls fail the job.
-- Evidence report: documented facts only when DocsGPT returned sources, otherwise demoted to unknowns. Sources only from the `sources` array.
-- GitHub App JWT, downscoped installation tokens in memory, issue fetch, related-issue search with an honest failure note.
-- Comment preview, acknowledgement plus content hash, kill switch, allowlist and installation checks, marker lookup before create, `@` neutralized.
-- One bootstrap admin, scrypt, cookie session, CSRF header, login lockout, password change.
-- Settings with Fernet-encrypted secrets and configured flags only.
-- Dashboard: sign-in, overview, filtered and paginated list, detail with fact, hypothesis, and unknown rails, sources, related issues, timeline, retry, publish panel, settings, health.
-- Demo mode with fixtures. Publishing is blocked.
-- Dockerfiles, Compose, CI workflow, issue and PR templates.
+- GitHub webhook endpoint with raw-body HMAC-SHA256 verification, unique delivery ids, a 1 MB limit, an allowlist (empty denies), and installation lifecycle tracking.
+- Durable jobs in the database, an in-process worker, a 10-minute lease, automatic retries for transient errors (default 5 attempts), and manual retry (limit 3).
+- DocsGPT client for `POST /api/answer` with `api_key` in the body, no redirects, an outbound URL policy, and transient retry. Pending tool calls fail the job.
+- Evidence report: documented facts, historical evidence, hypotheses, unknowns, next steps, questions, sources, related issues, and limitations. Facts are demoted to unknowns when DocsGPT returns no sources. Model-written URLs are not sources.
+- GitHub App JWT, downscoped installation tokens kept in memory, issue fetch, related-issue search with an honest failure note, and comment creation.
+- Publishing: off by default, blocked in demo mode, requires a session, CSRF header, acknowledgement, and matching content hash. One publish row per investigation, with a marker lookup before POST. Mentions are neutralized. The comment lists DocsGPT sources only.
+- One local admin with scrypt passwords, a 12-hour cookie session, CSRF header, lockout after 5 failures, and password change.
+- Settings stored with Fernet. The API returns configured flags, never values.
+- Dashboard pages: sign-in, overview, investigations with search and filters (repository, status, issue number, dates) and pagination, investigation detail with comment review, settings with installation status and connection tests, health, and password change.
+- Demo mode with fixtures, a seeded sample issue, and a banner.
+- Docker Compose (Postgres on the internal network only, web on `127.0.0.1:8080`), non-root API image, unprivileged nginx image, health checks, CI workflow, issue and PR templates.
 
-## Checks run
+## Checks run on 2026-10-10
 
 | Check | Result |
 | --- | --- |
-| `pytest -q` in `apps/api` | 18 passed, coverage 70% |
-| `ruff check` and `ruff format --check` | passed |
-| `mypy issuebot` | no issues in 18 files |
-| `npm test` in `apps/web` | 6 passed |
+| `pytest -q` in `apps/api` (Python 3.14.7 venv) | 20 passed, about 70% line coverage |
+| `ruff check issuebot tests` | passed |
+| `ruff format --check issuebot tests` | passed |
+| `mypy issuebot` | passed, 18 files |
+| `npm test` in `apps/web` (Vitest) | 6 passed |
 | `npm run lint` | passed |
-| `tsc --noEmit` and `vite build` | passed |
-| `docker compose config` | passed with `.env` copied from `.env.example` |
-| Secret pattern grep, excluding test fixtures | no match |
+| `npm run build` (tsc and Vite) | passed |
+| `docker compose config` with `.env.example` copied to `.env` | passed |
+| Secret pattern grep from the CI workflow | no matches outside tests |
+| `npm audit` | first run: 3 findings, all in the dev-only Vitest 3 chain. After upgrading to Vitest 5: 0 findings, tests still pass |
+| `pip-audit --skip-editable` in the API venv | no known vulnerabilities |
 | `docker build` for both images, locally | not run. The Docker daemon was not running |
-| GitHub Actions run [38059776184](https://github.com/j4b3-21/IssueBot/actions/runs/38059776184) | passed: api, web, docker (compose config and both image builds), secrets |
+| GitHub Actions run [38059776184](https://github.com/j4b3-21/IssueBot/actions/runs/38059776184) | passed: api, web, docker (compose config and both image builds), secrets. This run predates the changes below |
+| Demo mode in a browser against the real API and SQLite | sign-in, overview, detail, comment preview, blocked publish, settings without secret values, refused secret save without a Fernet key, and health all checked by hand |
 
-## Live integrations
+Found and fixed during the browser check: Alembic's `fileConfig` replaced the redacting log handler and silenced uvicorn startup logs. A regression test now covers it.
 
-- DocsGPT: not called with a real key. The contract was checked against the docs on 2026-10-10. Tests use mocked HTTP.
-- GitHub: not called with a real App. The contract was checked against the docs on 2026-10-10. Tests use mocked HTTP.
-- GitHub Search permission for an App token is unconfirmed. The worker records a failure and continues.
+## Not run or not verified
 
-## Known gaps
+- The Compose stack has not been started, so the `SKIP LOCKED` claim path has not run against PostgreSQL. Tests and the demo used SQLite. The images were built in CI only.
+- Live DocsGPT. No API key was available. The request shape follows the docs checked on 2026-10-10. Tests use mocked HTTP.
+- Live GitHub. No App credentials were available. JWT, token exchange, issue fetch, search, and comment creation are exercised only against mocked HTTP.
+- Local tests were run on Python 3.14. CI runs them on Python 3.12, which the image uses.
+- Phone-width layout was not visually confirmed. The browser tool returned stale screenshots after a viewport change.
+- No Playwright end-to-end test. The browser check above was manual.
+- Audits are not part of CI yet.
 
-- The dashboard was not exercised end to end in a browser in this session.
-- No Playwright test.
-- Startup migrations assume a single API process.
-- The images were built in CI but the Compose stack has not been started.
-- No automatic data retention job.
-- No license selected.
+## Known limitations
+
+- DocsGPT does not cite per sentence. Sources apply to the whole answer.
+- GitHub Search permission for GitHub Apps is not documented clearly. Search failures are recorded and do not fail the job.
+- Prompt-injection defenses reduce risk and do not eliminate it.
+- One administrator. No roles.
+- A job whose lease expires can call DocsGPT twice. Comments are still protected by the marker and the unique publish row.
+- No automatic retention. Delivery ids are kept forever.
+- No license file. Ownership has not been decided.
 
 ## Next steps
 
-1. Start Docker and run `docker compose up --build`, then sign in and load the demo sample.
-2. Configure a real DocsGPT agent and use Test DocsGPT.
-3. Create a GitHub App on a test repository, send an `issues.opened` webhook, and approve one comment.
-4. Add a browser test for sign-in, detail, and publish blocked in demo mode.
+1. Start Docker and run `docker compose up --build`, then check the Postgres claim path.
+2. Create a test GitHub App and a DocsGPT agent, use the connection tests, and send one real `issues.opened` delivery to an allowlisted repository. Record the result here.
+3. Add a Playwright test for the demo flow.
+4. Add `pip-audit` and `npm audit` to CI.
+5. Choose a license.

@@ -5,7 +5,7 @@ import hmac
 
 import pytest
 from issuebot.docsgpt import DocsGPTResult
-from issuebot.report import build_report
+from issuebot.report import build_report, render_comment
 from issuebot.safety import (
     UnsafeURL,
     assess_url,
@@ -125,3 +125,24 @@ def test_fabricated_url_in_answer_is_not_a_source():
     urls = [item["url"] for item in report["sources"]]
     assert urls == ["https://docs.example.com/install"]
     assert report["documented_facts"]
+
+
+def test_comment_lists_only_docsgpt_sources():
+    result = DocsGPTResult(
+        answer='{"summary":"See http://evil.example/x","documented_facts":[{"text":"Set the key."}]}',
+        sources=[
+            {"title": "Guide [1]", "source": "https://docs.example.com/@team/guide (v2)"},
+            {"title": "notes.md", "source": "notes.md"},
+            {"title": "Internal", "source": "http://169.254.169.254/latest"},
+        ],
+        conversation_id="c",
+        structured=None,
+        correlation_id="c",
+    )
+    body = render_comment("id", "acme/widget", 7, build_report(result, [], None, mock=False))
+    sources = body.split("### Sources", 1)[1]
+    assert "[Guide \\[1\\]](https://docs.example.com/%40team/guide%20%28v2%29)" in sources
+    assert "- notes.md" in sources
+    assert "169.254" not in sources
+    assert "evil.example" not in sources
+    assert "\u200b" not in sources.split("A maintainer")[0]

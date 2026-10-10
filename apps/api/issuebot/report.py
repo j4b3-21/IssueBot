@@ -7,6 +7,7 @@ import html
 import json
 import re
 from datetime import datetime
+from urllib.parse import quote
 
 from pydantic import BaseModel, Field
 
@@ -190,6 +191,9 @@ def render_comment(investigation_id: str, repo: str, number: int, report: dict) 
         "### Questions for the reporter",
         *_bullets(report.get("questions_for_reporter"), "None."),
         "",
+        "### Sources",
+        *_source_lines(report.get("sources")),
+        "",
         "A maintainer reviewed this comment before it was posted.",
     ]
     text = neutralize_mentions("\n".join(lines))
@@ -270,6 +274,26 @@ def _bullets(value: object, empty: str) -> list[str]:
     if not isinstance(value, list) or not value:
         return [empty]
     return [f"- {_escape(str(item))}" for item in value]
+
+
+_URL_SAFE = ":/?#&=%+!$',;~*-._"
+
+
+def _source_lines(value: object) -> list[str]:
+    items = [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
+    if not items:
+        return ["None. DocsGPT returned no sources."]
+    lines = ["These apply to the answer as a whole, not to individual sentences."]
+    for item in items[:10]:
+        title = _escape(str(item.get("title") or "Untitled source")).replace("[", "\\[")
+        title = title.replace("]", "\\]")
+        url = item.get("url")
+        if item.get("linkable") and isinstance(url, str) and source_is_linkable(url):
+            # @ is encoded so neutralize_mentions cannot break the URL.
+            lines.append(f"- [{title}]({quote(url, safe=_URL_SAFE)})")
+        else:
+            lines.append(f"- {title}")
+    return lines
 
 
 def _escape(value: str) -> str:

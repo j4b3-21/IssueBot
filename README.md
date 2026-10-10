@@ -168,7 +168,7 @@ In another terminal, `cd apps/web && npm run dev`. The API banner and Settings b
 
 ## Reviewing a comment
 
-Open the investigation. The preview shows the target `owner/name#number` and the exact Markdown. The publish button stays disabled until you check the review box. Publishing must also be enabled in Settings, the repository must stay allowlisted, and the installation must be active. Demo mode blocks publishing even if the setting is on. A second click returns the existing comment instead of creating another one.
+Open the investigation. The preview shows the target `owner/name#number` and the exact Markdown, including the DocsGPT sources. The publish button stays disabled until you check the review box. Publishing must also be enabled in Settings, the repository must stay allowlisted, and the installation must be active. Demo mode blocks publishing even if the setting is on. A second click returns the existing comment instead of creating another one.
 
 ## Troubleshooting
 
