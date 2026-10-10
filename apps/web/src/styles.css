@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f7f8fa;
+  --color-sheet: #ffffff;
+  --color-ink: #1b2430;
+  --color-line: #7c8b9a;
+  --color-mark: #0e6b5c;
+  --font-sans: "Public Sans", "Segoe UI", sans-serif;
+  --font-serif: "Source Serif 4", Georgia, serif;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-mark);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -40px;
+  background: var(--color-sheet);
+  padding: 8px 12px;
+  z-index: 2;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+.brief {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.55;
+  max-width: 68ch;
+}
+
+.rail-fact {
+  border-left: 3px solid var(--color-mark);
+  padding-left: 12px;
+}
+
+.rail-hypothesis {
+  border-left: 3px dashed var(--color-line);
+  padding-left: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  table.responsive thead {
+    display: none;
+  }
+  table.responsive tr {
+    display: block;
+    border-bottom: 1px solid var(--color-line);
+    padding: 8px 0;
+  }
+  table.responsive td {
+    display: block;
+  }
+}
