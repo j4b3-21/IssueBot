@@ -5,9 +5,11 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import logging
 
 import httpx
 from fastapi.testclient import TestClient
+from issuebot.logging_config import JsonFormatter
 from issuebot.models import Investigation, InvestigationJob, PublishedComment
 from issuebot.worker import claim_and_run_once
 from sqlalchemy import select
@@ -370,3 +372,11 @@ def test_health_and_overview(client):
     health = client.get("/api/v1/health")
     assert health.json()["database"] == "ok"
     assert "test-docsgpt-key" not in health.text
+
+
+def test_startup_migration_keeps_redacting_log_handler(client):
+    del client
+    root = logging.getLogger()
+    assert any(isinstance(handler.formatter, JsonFormatter) for handler in root.handlers)
+    assert not logging.getLogger("uvicorn.error").disabled
+    assert not logging.getLogger("issuebot").disabled
