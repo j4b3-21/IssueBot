@@ -52,6 +52,8 @@ Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, PostgreSQL 16, httpx. 
 
 ## Start with Docker Compose
 
+Short version with screenshot spots: [SETUP.md](SETUP.md).
+
 ```bash
 cp .env.example .env
 ```

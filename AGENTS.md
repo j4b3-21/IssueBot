@@ -1,7 +1,5 @@
 # Agent notes
 
-IssueBot is the product name. The package is `issuebot`. Do not rename it.
-
 ## Layout
 
 - `apps/api/issuebot` — FastAPI app, worker, DocsGPT and GitHub clients
