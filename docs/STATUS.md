@@ -28,8 +28,8 @@ Last updated 2026-10-10.
 | `tsc --noEmit` and `vite build` | passed |
 | `docker compose config` | passed with `.env` copied from `.env.example` |
 | Secret pattern grep, excluding test fixtures | no match |
-| `docker build` for both images | not run. The Docker daemon was not running |
-| CI workflow on GitHub | not run yet |
+| `docker build` for both images, locally | not run. The Docker daemon was not running |
+| GitHub Actions run [38059776184](https://github.com/j4b3-21/IssueBot/actions/runs/38059776184) | passed: api, web, docker (compose config and both image builds), secrets |
 
 ## Live integrations
 
@@ -42,6 +42,7 @@ Last updated 2026-10-10.
 - The dashboard was not exercised end to end in a browser in this session.
 - No Playwright test.
 - Startup migrations assume a single API process.
+- The images were built in CI but the Compose stack has not been started.
 - No automatic data retention job.
 - No license selected.
 
